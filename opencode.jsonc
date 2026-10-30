@@ -1,0 +1,36 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "vmware-visual-mcp": {
+        "type": "local",
+        "command": ["python", "server.py"],
+        "cwd": "mcp/vmware-visual-mcp",
+        "environment": {
+          "VMRUN_PATH": "C:\\Program Files\\VMware\\VMware Workstation\\vmrun.exe"
+        }
+      },
+      "playwright": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "@playwright/mcp",
+          "--cdp-endpoint",
+          "http://127.0.0.1:9222"
+        ]
+      },
+      "guest-vmware": {
+        "type": "remote",
+        "url": "{env:GUEST_MCP_URL}",
+        "oauth": false,
+        "timeout": {
+          "execution": 300000
+        },
+        "headers": {
+          "Authorization": "Bearer {env:GUEST_MCP_TOKEN}"
+        }
+      }
+    }
+  }
+}

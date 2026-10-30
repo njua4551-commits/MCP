@@ -1,0 +1,5 @@
+mcp[cli]>=1.2,<2
+pyautogui
+pyperclip
+pywin32
+pillow

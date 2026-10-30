@@ -1,0 +1,8 @@
+mcp[cli]>=1.2,<2
+uvicorn
+starlette
+psutil
+pyautogui
+pyperclip
+pillow
+pywin32
