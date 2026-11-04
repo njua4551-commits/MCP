@@ -1,63 +1,90 @@
-# opencode-mcps
+# MCP Servers para OpenCode
 
-MCP servers para [OpenCode](https://opencode.ai) listos para usar en otra máquina.
+Colección de servidores [MCP](https://modelcontextprotocol.io/) usados con OpenCode
+para automatizar **VMware**, **Cisco Packet Tracer**, **Playwright** y una **VM invitada**.
 
-## Contenido
+| MCP | Tipo | Lenguaje | Qué hace |
+|---|---|---|---|
+| `vmware-visual-mcp` | local (stdio) | Python | Localiza/enfoca la ventana de VMware Workstation, captura pantalla, mueve ratón y teclado del host. |
+| `guest-vmware-mcp` | remoto (HTTP) | Python | Corre dentro de la VM: PowerShell, archivos, portapapeles, capturas y control real del escritorio del invitado. |
+| `cisco-pt-mcp` | local (stdio) | TypeScript/Node | Controla Packet Tracer vía su API de scripting y un puente HTTP: crear topologías, configurar PCs/IOS, ping, capturas. |
+| `cisco-packet-tracer-mcp` | local (stdio) | Python | Alternativa basada en GUI + OCR: encuentra la ventana de Packet Tracer y opera por imagen. |
+| `playwright-mcp` | local (stdio) | Node (npm) | Navegador real vía CDP; solo se versiona la configuración (paquete oficial `@playwright/mcp`). |
 
-| Servidor | Tipo | Origen | Incluido en repo |
-| --- | --- | --- | --- |
-| `vmware-visual-mcp` | local (Python) | Captura/control de ventanas VMware Workstation | Sí (`mcp/vmware-visual-mcp`) |
-| `playwright` | local (npx) | [`@playwright/mcp`](https://www.npmjs.com/package/@playwright/mcp) | No (se instala con npx) |
-| `guest-vmware` | remoto (HTTP) | Control nativo dentro de la VM Windows | Sí (`mcp/guest-vmware-mcp`) |
+## Estructura
 
-## Instalación
-
-1. Copia `opencode.jsonc` en tu configuración global `~/.config/opencode/opencode.json`
-   (en Windows: `C:\Users\<usuario>\.config\opencode\opencode.json`), o en
-   `opencode.json` del proyecto.
-2. Ajusta `cwd`/`command` a la ruta real de este repo.
-3. Prepara el MCP local de VMware:
-
-```powershell
-cd mcp\vmware-visual-mcp
-python -m venv .venv
-.\.venv\Scripts\pip install -r requirements.txt
 ```
-
-4. Define las variables de entorno (ver `.env.example`):
-
-```powershell
-setx GUEST_MCP_TOKEN "tu-token"
-setx GUEST_MCP_URL "http://IP-DEL-INVITADO:8765/mcp"
-```
-
-5. Servidor del invitado (se ejecuta **dentro** de la VM):
-
-```powershell
-cd mcp\guest-vmware-mcp
-python -m venv .venv
-.\.venv\Scripts\pip install -r requirements.txt
-python -c "import secrets; print(secrets.token_urlsafe(32))"
-```
-
-Guarda el valor impreso en `C:\opencode-agent\token.txt` dentro de la VM y
-arranca `python server.py` en su sesión interactiva. Detalles en
-`mcp/guest-vmware-mcp/README.md`.
-
-6. Verifica la conexión:
-
-```sh
-opencode mcp list
+vmware-visual-mcp/        server.py + requirements.txt
+guest-vmware-mcp/         server.py + deploy.py + requirements.txt
+cisco-pt-mcp/             src/ (TS) + dist/ (JS compilado) + pt-extension/
+cisco-packet-tracer-mcp/  server.py + src/cisco_pt/ + tests/
+playwright-mcp/           README + package.json (config del paquete oficial)
+opencode.json.example     Configuración de los 5 MCP para OpenCode
 ```
 
 ## Requisitos
 
-- Python 3.10+ con Tk/pywin32 (Windows) para `vmware-visual-mcp`.
-- Node.js 18+ para Playwright (`npx -y @playwright/mcp`).
-- VMware Workstation instalado si usas `VMRUN_PATH`/`vmrun`.
-- Chrome con CDP en `http://127.0.0.1:9222` si usas el modo CDP de Playwright.
+- Windows 10/11
+- Python 3.11+ (los MCP Python usan `mcp`, `pyautogui`, `psutil`, `pillow`, `pytesseract`)
+- Node.js 20+ (para `cisco-pt-mcp` y `playwright-mcp`)
+- VMware Workstation, Cisco Packet Tracer 8.x, Google Chrome
+
+## Instalación
+
+```powershell
+# MCP Python (repetir por cada uno)
+cd vmware-visual-mcp
+python -m venv .venv
+.\.venv\Scripts\pip install -r requirements.txt
+
+# MCP TypeScript
+cd cisco-pt-mcp
+npm install
+npm run build
+
+# Playwright
+npm install -g @playwright/mcp@0.0.83
+```
+
+En Packet Tracer hay que cargar la extensión de `cisco-pt-mcp/pt-extension/`
+(`main.js` + `interface/bridge.html`) desde *Extensions → Scripting → Run*.
+
+## Configuración en OpenCode
+
+Copia `opencode.json.example` y ajusta rutas absolutas:
+
+```powershell
+Copy-Item opencode.json.example "$env:USERPROFILE\.config\opencode\opencode.json"
+```
+
+Ejemplo mínimo:
+
+```jsonc
+{
+  "mcp": {
+    "vmware-visual-mcp": {
+      "type": "local",
+      "command": ["C:/ruta/vmware-visual-mcp/.venv/Scripts/python.exe",
+                  "C:/ruta/vmware-visual-mcp/server.py"]
+    },
+    "cisco-pt-mcp": {
+      "type": "local",
+      "command": ["node", "C:/ruta/cisco-pt-mcp/dist/server.js"],
+      "environment": { "PT_MCP_PORT": "37101", "PT_MCP_TIMEOUT_MS": "62000" }
+    }
+  }
+}
+```
 
 ## Seguridad
 
-No subas tokens ni rutas personales. Usa `{env:VAR}` en la configuración y
-mantén `.env` fuera de git.
+- `guest-vmware-mcp` usa un **bearer token**. No subas `token.txt` ni `.env`
+  (ya están en `.gitignore`); genera uno nuevo con `deploy.py`.
+- `cisco-pt-mcp` abre un puente HTTP local en `PT_MCP_PORT` (por defecto 37101):
+  no lo expongas fuera de `localhost`.
+- Las carpetas `evidence/`, `logs/` y las capturas pueden contener datos de tu
+  red; están excluidas del repo.
+
+## Licencia
+
+MIT.

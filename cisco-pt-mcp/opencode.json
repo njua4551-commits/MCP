@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "cisco-pt-mcp": {
+      "type": "local",
+      "command": ["node", "C:/RUTA/A/pt-mcp/dist/server.js"],
+      "enabled": true,
+      "timeout": 10000,
+      "environment": {
+        "PT_MCP_PORT": "37101",
+        "PT_MCP_TIMEOUT_MS": "60000"
+      }
+    }
+  }
+}

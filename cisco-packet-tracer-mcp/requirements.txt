@@ -1,0 +1,7 @@
+mcp
+pyautogui
+pillow
+pywin32
+opencv-python
+pygetwindow
+pydantic

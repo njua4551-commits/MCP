@@ -1,0 +1,8 @@
+{
+  "name": "playwright-mcp-config",
+  "private": true,
+  "description": "Configuracion de referencia para el MCP oficial @playwright/mcp",
+  "dependencies": {
+    "@playwright/mcp": "0.0.83"
+  }
+}

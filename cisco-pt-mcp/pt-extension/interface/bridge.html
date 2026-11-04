@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>MCP Bridge</title>
+<style>
+  body { font: 13px Segoe UI, Arial, sans-serif; background: #0f1b33; color: #e6edf7; margin: 0; padding: 12px; }
+  h3 { margin: 0 0 8px; } #st { font-weight: normal; margin-left: 8px; }
+  .on { color: #4ade80; } .off { color: #f87171; }
+  label { display: inline-block; margin-right: 10px; }
+  input { background: #16264a; color: #e6edf7; border: 1px solid #2c3f6b; padding: 3px 6px; }
+  button { background: #0ea5e9; color: #fff; border: 0; padding: 5px 12px; margin-right: 6px; cursor: pointer; }
+  #clr { background: #334155; }
+  #log { margin-top: 10px; height: 270px; overflow: auto; background: #0a1226; padding: 6px; font: 12px Consolas, monospace; }
+  .err { color: #f87171; } .ok { color: #4ade80; }
+</style>
+</head>
+<body>
+<h3>MCP Bridge <span id="st" class="off">Desconectado</span></h3>
+<label>Servidor <input id="url" size="24" value="http://127.0.0.1:37101"></label>
+<label>Intervalo (ms) <input id="ms" size="5" value="300"></label>
+<label>Token <input id="tk" size="10" placeholder="(opcional)"></label>
+<div style="margin-top:8px"><button id="btn">Conectar</button><button id="clr">Limpiar log</button>
+<span id="cnt">Comandos: 0</span></div>
+<div id="log"></div>
+<script>
+(function () {
+  var running = false, handled = 0, serverUp = null;
+  function $(id) { return document.getElementById(id); }
+
+  function log(msg, cls) {
+    var d = document.createElement("div");
+    if (cls) d.className = cls;
+    d.textContent = "[" + new Date().toTimeString().slice(0, 8) + "] " + msg;
+    $("log").appendChild(d);
+    while ($("log").childNodes.length > 200) $("log").removeChild($("log").firstChild);
+    $("log").scrollTop = $("log").scrollHeight;
+  }
+
+  function setUi() {
+    $("st").textContent = running ? "Conectado - Esperando comandos..." : "Desconectado";
+    $("st").className = running ? "on" : "off";
+    $("btn").textContent = running ? "Desconectar" : "Conectar";
+  }
+
+  // text/plain evita el preflight CORS; el servidor parsea JSON igualmente.
+  function http(method, url, body, cb) {
+    var x = new XMLHttpRequest();
+    x.open(method, url, true);
+    if (body !== null) x.setRequestHeader("Content-Type", "text/plain");
+    x.onload = function () { cb(null, x); };
+    x.onerror = function () { cb(new Error("sin respuesta")); };
+    x.send(body);
+  }
+
+  // $se puede devolver el objeto o su JSON en texto, según versión
+  function unwrap(w) {
+    if (typeof w === "string") { try { w = JSON.parse(w); } catch (e) { return { success: false, error: String(w) }; } }
+    return w || { success: false, error: "runCode no devolvió nada" };
+  }
+
+  function api(path) {
+    var t = $("tk").value;
+    return $("url").value + path + (t ? "?token=" + encodeURIComponent(t) : "");
+  }
+
+  function schedule() {
+    if (!running) return;
+    var ms = parseInt($("ms").value, 10); if (!(ms >= 100)) ms = 300;
+    setTimeout(tick, ms);
+  }
+
+  function tick() {
+    if (!running) return;
+    http("GET", api("/next"), null, function (err, x) {
+      if (err) {
+        if (serverUp !== false) { log("Servidor MCP no responde. ¿OpenCode está abierto?", "err"); serverUp = false; }
+        return schedule();
+      }
+      if (serverUp !== true) { log("Servidor MCP alcanzado", "ok"); serverUp = true; }
+      if (x.status !== 200) return schedule();
+
+      var job;
+      try { job = JSON.parse(x.responseText); } catch (e) { return schedule(); }
+      log("→ " + job.code.replace(/\s+/g, " ").slice(0, 90));
+
+      var out;
+      try { out = unwrap($se("runCode", job.code)); }
+      catch (e) { out = { success: false, error: String(e) }; }
+
+      handled++; $("cnt").textContent = "Comandos: " + handled;
+      log("← " + (out.success ? "ok" : "error: " + out.error), out.success ? "ok" : "err");
+
+      http("POST", api("/result"),
+           JSON.stringify({ id: job.id, ok: !!out.success, result: out.result, error: out.error }),
+           function () { schedule(); });
+    });
+  }
+
+  $("btn").onclick = function () {
+    running = !running; serverUp = null; setUi();
+    if (running) { log("Conectando a " + $("url").value); tick(); } else { log("Desconectado"); }
+  };
+  $("clr").onclick = function () { $("log").innerHTML = ""; };
+
+  log("MCP Bridge listo. Conectando automáticamente...");
+  setUi();
+  // Auto-conexión: el polling arranca solo al cargar la página (Desconectar lo detiene).
+  running = true; setUi(); tick();
+})();
+</script>
+</body>
+</html>

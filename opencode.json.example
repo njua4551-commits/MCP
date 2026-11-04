@@ -1,0 +1,53 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "vmware-visual-mcp": {
+      "type": "local",
+      "command": [
+        "C:/ruta/vmware-visual-mcp/.venv/Scripts/python.exe",
+        "C:/ruta/vmware-visual-mcp/server.py"
+      ],
+      "cwd": "C:/ruta/vmware-visual-mcp"
+    },
+    "guest-vmware-mcp": {
+      "type": "remote",
+      "url": "http://192.168.222.134:8765/mcp",
+      "oauth": false,
+      "timeout": 300000,
+      "headers": {
+        "Authorization": "Bearer REEMPLAZA_CON_TU_TOKEN"
+      }
+    },
+    "cisco-pt-mcp": {
+      "type": "local",
+      "command": [
+        "node",
+        "C:/ruta/cisco-pt-mcp/dist/server.js"
+      ],
+      "timeout": 10000,
+      "environment": {
+        "PT_MCP_PORT": "37101",
+        "PT_MCP_TIMEOUT_MS": "62000"
+      }
+    },
+    "cisco-packet-tracer-mcp": {
+      "type": "local",
+      "command": [
+        "C:/ruta/cisco-packet-tracer-mcp/.venv/Scripts/python.exe",
+        "C:/ruta/cisco-packet-tracer-mcp/server.py"
+      ],
+      "cwd": "C:/ruta/cisco-packet-tracer-mcp"
+    },
+    "playwright": {
+      "type": "local",
+      "command": [
+        "node",
+        "C:/Users/TU_USUARIO/AppData/Roaming/npm/node_modules/@playwright/mcp/cli.js",
+        "--cdp-endpoint",
+        "http://127.0.0.1:9222",
+        "--output-dir",
+        "C:/Users/TU_USUARIO/AppData/Local/Temp/opencode/playwright-mcp"
+      ]
+    }
+  }
+}
