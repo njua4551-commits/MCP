@@ -1,0 +1,13 @@
+{
+  "name": "mcp-portatil",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "bin": { "mcp-ia": "./mcp.mjs" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "@playwright/mcp": "0.0.83",
+    "zod": "4.6.7"
+  }
+}

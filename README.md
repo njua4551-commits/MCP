@@ -3,6 +3,8 @@
 Colección de servidores [MCP](https://modelcontextprotocol.io/) usados con OpenCode
 para automatizar **VMware**, **Cisco Packet Tracer**, **Playwright** y una **VM invitada**.
 
+**Instalación recomendada:** usa el [kit portátil de los cuatro MCP](mcp-portatil/README.md). Para Packet Tracer 9.0.1, sigue la [guía de Cisco: instalación, conexión y primera topología](mcp-portatil/cisco/README.md). Las carpetas que se describen abajo corresponden a las implementaciones independientes anteriores.
+
 | MCP | Tipo | Lenguaje | Qué hace |
 |---|---|---|---|
 | `vmware-visual-mcp` | local (stdio) | Python | Localiza/enfoca la ventana de VMware Workstation, captura pantalla, mueve ratón y teclado del host. |
