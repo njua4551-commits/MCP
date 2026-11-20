@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const script = fileURLToPath(import.meta.url);
 const require = createRequire(import.meta.url);
-const ids = ['playwright', 'cisco-pt-mcp', 'guest-vmware-mcp', 'vmware'];
+const ids = ['playwright', 'cisco-pt-mcp', 'windows-control-mcp', 'vmware'];
 const env = process.env;
 const print = value => console.log(JSON.stringify(value, null, 2));
 const help = `mcp-ia config <json|vscode|codex|opencode> [servidor ...]
@@ -19,6 +19,7 @@ mcp-ia call <servidor> <herramienta> [objeto JSON o - para stdin]
 Servidores: ${ids.join(', ')}`;
 
 function server(id) {
+  if (id === 'guest-vmware-mcp') return 'windows-control-mcp';
   if (!ids.includes(id)) throw new Error(`Servidor desconocido: ${id ?? '(vacío)'}. ${ids.join(', ')}`);
   return id;
 }
@@ -109,7 +110,7 @@ async function guest() {
 }
 
 async function serve(id) {
-  if (id === 'guest-vmware-mcp') return guest();
+  if (id === 'windows-control-mcp') return guest();
   if (id === 'vmware') {
     const python = env.MCP_PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
     const child = spawn(python, [join(dirname(script), 'vmware', 'server.py')], {
@@ -145,7 +146,7 @@ async function clientCommand(op, id, tool, raw) {
   const { StdioClientTransport } = await import('@modelcontextprotocol/sdk/client/stdio.js');
   const pass = Object.fromEntries(Object.entries(env).filter(([k]) =>
     /^(XDG_.*|LOCALAPPDATA|TMP(DIR)?|TEMP|HTTPS?_PROXY|NO_PROXY|NODE_EXTRA_CA_CERTS)$/i.test(k)
-    || (id === 'guest-vmware-mcp' && k.startsWith('MCP_GUEST_'))
+    || (id === 'windows-control-mcp' && k.startsWith('MCP_GUEST_'))
     || (id === 'vmware' && /^(MCP_PYTHON|VMWARE_.*|VMRUN)$/.test(k))
     || (id === 'playwright' && k.startsWith('PLAYWRIGHT_'))
     || (id === 'cisco-pt-mcp' && k.startsWith('PT_MCP_'))));

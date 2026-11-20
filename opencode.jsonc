@@ -20,7 +20,7 @@
           "http://127.0.0.1:9222"
         ]
       },
-      "guest-vmware": {
+      "windows-control-mcp": {
         "type": "remote",
         "url": "{env:GUEST_MCP_URL}",
         "oauth": false,

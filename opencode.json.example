@@ -9,7 +9,7 @@
       ],
       "cwd": "C:/ruta/vmware-visual-mcp"
     },
-    "guest-vmware-mcp": {
+    "windows-control-mcp": {
       "type": "remote",
       "url": "http://192.168.222.134:8765/mcp",
       "oauth": false,

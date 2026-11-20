@@ -1,4 +1,6 @@
-# guest-vmware: control nativo de la VM desde OpenCode
+# windows-control-mcp: control interno de Windows
+
+Este servidor controla Windows, no el hipervisor. No admite invitados Linux: usa PowerShell y las API de escritorio de Windows.
 
 Servidor MCP que corre **dentro** de Windows Server 2019, en la sesión interactiva
 del usuario `Administrador`. OpenCode (host) se conecta por HTTP y obtiene control
@@ -32,7 +34,7 @@ la ventana de VMware), pero ya no es necesario para operar el guest.
 
 Archivos en el guest:
 
-- `server.py` — servidor MCP (fuente: `C:\Users\Enoc\guest-vmware-mcp\server.py`)
+- `server.py` — servidor MCP (fuente: `C:\Users\Enoc\windows-control-mcp\server.py`)
 - `token.txt` — bearer token (43 caracteres)
 - `server.log` — log con rotación a 5 MB al arrancar
 - `evidence\` — respaldo local si el shared folder no está montado
@@ -79,10 +81,10 @@ Con el venv que tiene `pywinrm`:
 
 ```powershell
 # Estado de la tarea, health y proceso
-C:\Users\Enoc\vmware-visual-mcp\.venv\Scripts\python.exe C:\Users\Enoc\guest-vmware-mcp\deploy.py --status
+C:\Users\Enoc\vmware-visual-mcp\.venv\Scripts\python.exe C:\Users\Enoc\windows-control-mcp\deploy.py --status
 
 # Subir server.py tras un cambio y reiniciar la tarea
-C:\Users\Enoc\vmware-visual-mcp\.venv\Scripts\python.exe C:\Users\Enoc\guest-vmware-mcp\deploy.py
+C:\Users\Enoc\vmware-visual-mcp\.venv\Scripts\python.exe C:\Users\Enoc\windows-control-mcp\deploy.py
 ```
 
 Desde OpenCode, sin salir de la conversación:
@@ -101,7 +103,7 @@ Para rotarlo:
 
 1. Generar uno nuevo: `python -c "import secrets; print(secrets.token_urlsafe(32))"`.
 2. Escribirlo en `C:\opencode-agent\token.txt` (sin salto de línea).
-3. Actualizar `headers.Authorization` de `guest-vmware` en `opencode.json`.
+3. Actualizar `headers.Authorization` de `windows-control-mcp` en `opencode.json`.
 4. Reiniciar la tarea (`deploy.py --status` no basta; usar `deploy.py` o
    `Stop-ScheduledTask` + `Start-ScheduledTask`).
 

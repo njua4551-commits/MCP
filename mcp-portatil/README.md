@@ -34,7 +34,7 @@ mcp-ia list playwright
 mcp-ia call playwright browser_navigate '{"url":"https://example.com"}'
 mcp-ia call cisco-pt-mcp pt_status
 mcp-ia call vmware vm_list
-mcp-ia call guest-vmware-mcp get_system_info
+mcp-ia call windows-control-mcp get_system_info
 ```
 
 `list` devuelve los nombres y esquemas en JSON. `call` acepta `{}` por defecto, un objeto JSON como argumento o `-` para leerlo de stdin (útil en Windows). Los errores de herramienta dan código de salida distinto de cero. Cada `call` abre una sesión nueva; para mantener las pestañas entre operaciones usa el servidor desde un cliente MCP persistente.
@@ -43,8 +43,8 @@ mcp-ia call guest-vmware-mcp get_system_info
 
 - **`playwright`**: Chromium headless, con un perfil aislado por cliente. Detecta el navegador instalado por Playwright. Opcionales: `PLAYWRIGHT_MCP_EXECUTABLE_PATH`, `PLAYWRIGHT_BROWSERS_PATH`, `PLAYWRIGHT_MCP_OUTPUT_DIR`. La salida predeterminada está en `mcp-portatil/playwright`, dentro del directorio temporal del sistema.
 - **`cisco-pt-mcp`**: Packet Tracer y el servidor deben compartir el mismo `localhost`. Lo más rápido: `Extensions → Scripting → Configure PT Script Module → Add` e importa `cisco/MCP-Bridge.pts` (ya trae el módulo, la interfaz y los permisos). Si prefieres montarlo a mano, en `Extensions → Scripting → Edit File Script Module` carga `main.js`, `runcode.js` y `interface/bridge.html` de `cisco/pt-extension/`; guarda y vuelve a abrir el `.pkt`. Después, `Extensions → MCP Bridge`, conecta al puerto `37101`. `pt_status` debe indicar `packetTracerConnected: true`; `listening: true` por sí solo no basta. Si cambias `PT_MCP_PORT` o `PT_MCP_TOKEN`, ajusta también la extensión. `pt_capture` solicita un PNG del lienzo a la API de Packet Tracer; en Windows también puede capturar la ventana.
-- **`vmware`**: se ejecuta en el **host** con Python 3 y `vmrun` de VMware Workstation o Fusion. `VMWARE_VMS_DIR` selecciona el directorio que contiene los `.vmx` o sus carpetas. Puedes fijar `MCP_PYTHON`, `VMRUN` (ruta al ejecutable) y `VMWARE_HOST_TYPE` (`ws`/`fusion`). Las operaciones dentro del invitado que requieren credenciales usan `VMWARE_GUEST_USER` y `VMWARE_GUEST_PASS`. Para ratón y teclado usa `guest-vmware-mcp`.
-- **`guest-vmware-mcp`**: el servicio MCP existente debe estar activo en una VM Windows accesible desde el cliente. Para controlar el escritorio, la sesión debe estar desbloqueada. El adaptador usa Streamable HTTP con Bearer y lo presenta a la IA por stdio. En clientes que solo aceptan MCP remoto también puedes registrar directamente la URL del servicio con su cabecera de autenticación.
+- **`vmware`**: se ejecuta en el **host** con Python 3 y `vmrun` de VMware Workstation o Fusion. `VMWARE_VMS_DIR` selecciona el directorio que contiene los `.vmx` o sus carpetas. Puedes fijar `MCP_PYTHON`, `VMRUN` (ruta al ejecutable) y `VMWARE_HOST_TYPE` (`ws`/`fusion`). Las operaciones dentro del invitado que requieren credenciales usan `VMWARE_GUEST_USER` y `VMWARE_GUEST_PASS`. Para ratón y teclado usa `windows-control-mcp`.
+- **`windows-control-mcp`**: el servicio MCP existente debe estar activo en una VM Windows accesible desde el cliente. Para controlar el escritorio, la sesión debe estar desbloqueada. El adaptador usa Streamable HTTP con Bearer y lo presenta a la IA por stdio. En clientes que solo aceptan MCP remoto también puedes registrar directamente la URL del servicio con su cabecera de autenticación.
 
 ### Conectar otro cliente a una VM existente
 

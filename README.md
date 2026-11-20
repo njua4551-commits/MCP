@@ -8,7 +8,7 @@ para automatizar **VMware**, **Cisco Packet Tracer**, **Playwright** y una **VM 
 | MCP | Tipo | Lenguaje | Qué hace |
 |---|---|---|---|
 | `vmware-visual-mcp` | local (stdio) | Python | Localiza/enfoca la ventana de VMware Workstation, captura pantalla, mueve ratón y teclado del host. |
-| `guest-vmware-mcp` | remoto (HTTP) | Python | Corre dentro de la VM: PowerShell, archivos, portapapeles, capturas y control real del escritorio del invitado. |
+| `windows-control-mcp` | remoto (HTTP) | Python | Corre dentro de Windows: PowerShell, archivos, portapapeles, capturas y control real del escritorio del invitado. |
 | `cisco-pt-mcp` | local (stdio) | TypeScript/Node | Controla Packet Tracer vía su API de scripting y un puente HTTP: crear topologías, configurar PCs/IOS, ping, capturas. |
 | `cisco-packet-tracer-mcp` | local (stdio) | Python | Alternativa basada en GUI + OCR: encuentra la ventana de Packet Tracer y opera por imagen. |
 | `playwright-mcp` | local (stdio) | Node (npm) | Navegador real vía CDP; solo se versiona la configuración (paquete oficial `@playwright/mcp`). |
@@ -17,7 +17,7 @@ para automatizar **VMware**, **Cisco Packet Tracer**, **Playwright** y una **VM 
 
 ```
 vmware-visual-mcp/        server.py + requirements.txt
-guest-vmware-mcp/         server.py + deploy.py + requirements.txt
+windows-control-mcp/         server.py + deploy.py + requirements.txt
 cisco-pt-mcp/             src/ (TS) + dist/ (JS compilado) + pt-extension/
 cisco-packet-tracer-mcp/  server.py + src/cisco_pt/ + tests/
 playwright-mcp/           README + package.json (config del paquete oficial)
@@ -80,7 +80,7 @@ Ejemplo mínimo:
 
 ## Seguridad
 
-- `guest-vmware-mcp` usa un **bearer token**. No subas `token.txt` ni `.env`
+- `windows-control-mcp` usa un **bearer token**. No subas `token.txt` ni `.env`
   (ya están en `.gitignore`); genera uno nuevo con `deploy.py`.
 - `cisco-pt-mcp` abre un puente HTTP local en `PT_MCP_PORT` (por defecto 37101):
   no lo expongas fuera de `localhost`.

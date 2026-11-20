@@ -207,7 +207,7 @@ def _run_process(args, timeout: int, cwd: str | None = None) -> str:
 
 
 mcp = FastMCP(
-    "guest-vmware",
+    "windows-control-mcp",
     instructions=(
         "Control nativo de la VM Windows Server 2019. Coordenadas de ratón en "
         "píxeles absolutos del escritorio del guest; usa screenshot para verlas."
@@ -608,7 +608,7 @@ def main() -> None:
     )
     token = _token()
     app = AuthAndHealth(mcp.streamable_http_app(), token)
-    print(f"[{datetime.now().isoformat(timespec='seconds')}] guest-vmware MCP en {HOST}:{PORT} pid={os.getpid()} session={_session_id()}")
+    print(f"[{datetime.now().isoformat(timespec='seconds')}] windows-control-mcp MCP en {HOST}:{PORT} pid={os.getpid()} session={_session_id()}")
     uvicorn.run(app, host=HOST, port=PORT, log_config=None, access_log=False)
 
 
